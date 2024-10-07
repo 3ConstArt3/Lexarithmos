@@ -14,7 +14,7 @@ As simplistic as this thought may seem, the result of this research is so far im
 
 ## Dictionary form
 
-The data is stored in a JSON file(code/Data/numberFile.json) -, where each entry of that dictionary, has the following structure:
+The main **data**(aka phrases, numerical divisions) is stored in a **JSON** file, which can be found under the folder `code/Data/` with name `numberFile.json` -, where each entry of that dictionary, has the following structure:
 
 ```json
 {
@@ -25,10 +25,12 @@ The data is stored in a JSON file(code/Data/numberFile.json) -, where each entry
 }
 ```
 
-where 
- * key: The integer representation of each phrase sM.
- * divisions: An integer array, containing the subdivisions of the key.
- * phrases: A string array, containing all the phrases that have the same key.
+where
+
+ * `N, M`: The integer **indices**, which define the length of each array.
+ * `key`: The **integer** representation of each phrase sM.
+ * `divisions`: An **array**, containing every integer subdivision dN of the key.
+ * `phrases`: An **array**, containing all the phrases that have the same key.
 
 ## Usage
 
