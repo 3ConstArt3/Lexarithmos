@@ -40,14 +40,23 @@ where
 
 In this section, we're going to see the main `operations` the program has to offer, where each one is passed as a number in the function resolve_number(), in its field **userOption**. Being more specific, we have the following operations:
 
- 1. `Search by key`: This option is denoted by the integer value `0`. 
+```python
+self.userOptions = {
+    "search_by_key": 0,
+    "search_by_phrase": 1,
+    "insert_phrase": 2,
+    "delete_phrase": 3
+}
+```
+
+ 1. `Search by key`: This option is denoted by the integer `0`. 
     * The program asks the user for a key and then it returns the phrases that have that same **key**.
- 2. `Search by phrase`: This option is denoted by the integer value `1`.
-    * The program asks the user for a phrase and then it returns the phrases that lie within the same **array** of the attribute "phrases".
- 4. `Insert a phrase`: This option is denoted by the integer value `2`.
-    * The program asks the user for a phrase and after converting it to its numerical form, it inserts the **information** to the dictionary.
- 6. `Delete a phrase`: This option is denoted by the integer value `3`.
-    * The program asks the user for a phrase and then it **checks** for its existence. If it does exist it deletes it, otherwise it returns.
+ 2. `Search by phrase`: This option is denoted by the integer `1`.
+    * The program asks the user for a phrase and then returns the phrases that lie within the same [] of the attribute "phrases".
+ 4. `Insert a phrase`: This option is denoted by the integer `2`.
+    * The program asks the user for a phrase and then it inserts the related **information** to the dictionary.
+ 6. `Delete a phrase`: This option is denoted by the integer `3`.
+    * The program asks the user for a phrase and then **checks** for its existence. If it exists it deletes it, otherwise it returns.
 
 ### Example
 
