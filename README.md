@@ -14,7 +14,7 @@ As simplistic as this thought may seem, the result of this research is so far im
 
 **NOTE**: The map isn't random as it may seem! On the contrary, it is a recent historical discovery at an archaeological site in Greece, which makes it even more intriguing!💭
 
-## Dictionary form
+### Dictionary form
 
 The main **data**(aka phrases, numerical divisions) is stored in a **JSON** file, which can be found under the folder `code/Data/` with name `numberFile.json` -, where each entry of that dictionary, has the following structure:
 
@@ -34,18 +34,22 @@ where
  * `divisions`: An **array**, containing every integer subdivision dN of the key.
  * `phrases`: An **array**, containing all the phrases that have the same key.
 
-**NOTE**: The **subdivisions** of a natural number n, are the numbers that result each time from adding up all the digits of the number we currently have, until the number of digits in the result is 1. 
+**NOTE**: The `subdivisions` of a natural number n, are the numbers that result each time from adding up all the digits of the number we currently have, until the number of digits in the result is 1.
 
-## Usage
+### Usage
 
- * Search by key(0): This option tells the program, to run through the dictionary and then output the phrases that have a key equal to the one given by the user.
- * Search by phrase(1): This option tells the program, to run through the dictionary, spot where the phrase is, and then output all the phrases that are within the same list.
- * Insert a phrase(2): This option tells the program, to insert the phrase in the dictionary after it has been converted to its numerical form.
- * Delete a phrase(3): This option tells the program, to delete the phrase(if it exists) from the dictionary, while maintaining the integrity of the dictionary.
+In this section, we're going to see the main `operations` the program has to offer, where each one is passed as a number in the function resolve_number(), in its field **userOption**. Being more specific, we have the following operations:
 
-where the numbers inside the parenthesis() correspond to the parameter userOption, of the main resolve_flag() function.
+ 1. `Search by key`: This option is denoted by the integer value `0`. 
+    * The program asks the user for a key and then it returns the phrases that have that same **key**.
+ 2. `Search by phrase`: This option is denoted by the integer value `1`.
+    * The program asks the user for a phrase and then it returns the phrases that lie within the same **array** of the attribute "phrases".
+ 4. `Insert a phrase`: This option is denoted by the integer value `2`.
+    * The program asks the user for a phrase and after converting it to its numerical form, it inserts the **information** to the dictionary.
+ 6. `Delete a phrase`: This option is denoted by the integer value `3`.
+    * The program asks the user for a phrase and then it **checks** for its existence. If it does exist it deletes it, otherwise it returns.
 
-## Example
+### Example
 
 Now let's run through some examples, in order for us to understand what the program actually does. Let's say that we want to insert the phrase "πληροφορική". This phrase, is converted to its numerical form which is 996, and its number divisions are (24, 6). Thus - considering the simplest case where an object with key = 996 doesn't exist - we insert into the dictionary the following object:
 
