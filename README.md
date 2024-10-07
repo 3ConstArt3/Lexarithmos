@@ -12,7 +12,7 @@ As simplistic as this thought may seem, the result of this research is so far im
  * `Dictionary format`: Store the phrase and its numerical information, in a **JSON** file, which updates after each insertion or deletion.
  * `Basic operations`: Addition, Deletion and Search.
 
-**Note**: The map isn't random as it may seem! On the contrary, it is a recent historical discovery at an archaeological site in Greece, which makes it even more intriguing!💭
+**NOTE**: The map isn't random as it may seem! On the contrary, it is a recent historical discovery at an archaeological site in Greece, which makes it even more intriguing!💭
 
 ## Dictionary form
 
@@ -33,6 +33,8 @@ where
  * `key`: The **integer** representation of each phrase sM.
  * `divisions`: An **array**, containing every integer subdivision dN of the key.
  * `phrases`: An **array**, containing all the phrases that have the same key.
+
+**NOTE**: The **subdivisions** of a natural number n, are the numbers that result each time from adding up all the digits of the number we currently have, until the number of digits in the result is 1. 
 
 ## Usage
 
