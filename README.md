@@ -1,18 +1,18 @@
 # Lexarithmos
 
-Lexarithmos is a console program made in Python, which allows the user to convert words (and therefore phrases) of the Greek language (ancient or modern) into numbers and store them in a JSON dictionary, from which he can draw various conclusions. In addition, the user can delete phrases, search for them through a numerical key or find phrases by entering other phrases with the same numerical key.
+`Lexarithmos`, is a console program made in Python, which allows the user to convert words (and therefore phrases) of the Greek language (ancient or modern) into numbers and store them in a **JSON** dictionary, from which he can draw various conclusions about our world!
 
-## Core Idea
+### Core idea
 
-As simplistic as this thought may seem, the result of this research is so far impressive! What anyone using this program can observe is that mathematics - and specifically numbers - define the Greek language, and therefore every word, phrase, or even idea created within it is related to similar (or seemingly unrelated) concepts! Of course, in order to find beautiful associations, one must be willing to question, think and imagine, which gives a pleasant atmosphere of discovery during the whole process :)
+As simplistic as this thought may seem, the result of this research is so far impressive! What anyone can observe, is that **mathematics** - and specifically numbers - define the **Greek** language, and therefore every word, phrase, or even idea created within it is related to similar (or seemingly unrelated) concepts! Of course, in order to find beautiful associations, one must be willing to **question**, think and imagine, which gives a pleasant atmosphere of **discovery** during the whole process🙂.
 
-## Features
+### Features
 
- * Phrase to arithmetic conversion: Convert any Greek phrase into its numerical form.
- * Persistent storage: Store the phrase along with its numerical information, in a JSON file, that updates after each insertion or deletion.
- * Key operations: Add, delete or search phrases.
+ * `Phrase to number`: Convert any Greek phrase into its numerical form, using a specific letter map.
+ * `Dictionary format`: Store the phrase and its numerical information, in a **JSON** file, which updates after each insertion or deletion.
+ * `Basic operations`: Addition, Deletion and Search.
 
-## File structure
+## Dictionary form
 
 The data is stored in a JSON file(code/Data/numberFile.json) -, where each entry of that dictionary, has the following structure:
 
