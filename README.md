@@ -12,6 +12,8 @@ As simplistic as this thought may seem, the result of this research is so far im
  * `Dictionary format`: Store the phrase and its numerical information, in a **JSON** file, which updates after each insertion or deletion.
  * `Basic operations`: Addition, Deletion and Search.
 
+**Note**: The map isn't random as it may seem! On the contrary, it is a recent historical discovery at an archaeological site in Greece, which makes it even more intriguing!💭
+
 ## Dictionary form
 
 The main **data**(aka phrases, numerical divisions) is stored in a **JSON** file, which can be found under the folder `code/Data/` with name `numberFile.json` -, where each entry of that dictionary, has the following structure:
