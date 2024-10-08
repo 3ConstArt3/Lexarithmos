@@ -84,7 +84,7 @@ Now let's run through an example, in order for us to understand what the program
 }
 ```
 
-Otherwise, the program just inserts the phrase in the object, under the attribute "phrases":
+Otherwise, the program just inserts the phrase in the object, under the attribute **phrases**:
 
 ```json
 "996": {
