@@ -2,27 +2,37 @@
 
 `Lexarithmos`, is a console program made in Python, which allows the user to convert words (and therefore phrases) of the Greek language (ancient or modern) into numbers and store them in a **JSON** dictionary, from which he can draw various conclusions about our world!
 
-### Core idea
+### Core idea💡
 
 As simplistic as this thought may seem, the result of this research is so far impressive! What anyone can observe, is that **mathematics** - and specifically numbers - define the **Greek** language, and therefore every word, phrase, or even idea created within it is related to similar (or seemingly unrelated) concepts! Of course, in order to find beautiful associations, one must be willing to **question**, think and imagine, which gives a pleasant atmosphere of **discovery** during the whole process🙂.
 
-### Features
+### Features⚙️
 
  * `Phrase to number`: Convert any Greek phrase into its numerical form, using a specific letter map.
  * `Dictionary format`: Store the phrase and its numerical information, in a **JSON** file, which updates after each insertion or deletion.
  * `Basic operations`: Addition, Deletion and Search.
 
-**NOTE**: The map isn't random as it may seem! On the contrary, it is a recent historical discovery at an archaeological site in Greece, which makes it even more intriguing!💭
+**NOTE**: The map isn't random as it may seem! On the contrary, it is a recent historical discovery at an archaeological site in Greece, which makes it even more intriguing!
 
-### Dictionary form
+### DictionaryForm📄
 
 The main **data**(aka phrases, numerical divisions) is stored in a **JSON** file, which can be found under the folder `code/Data/` with name `numberFile.json` -, where each entry of that dictionary, has the following structure:
 
 ```json
 {
     "key": {
-        "divisions": ["d1", "d2", "...", "dN"],
-        "phrases": ["s1", "s2", "...", "sM"]
+        "divisions": [
+            "d1",
+            "d2",
+            "...",
+            "dN"
+        ],
+        "phrases": [
+            "s1",
+            "s2",
+            "...",
+            "sM"
+        ]
     }
 }
 ```
@@ -36,7 +46,7 @@ where
 
 **NOTE**: The `subdivisions` of a natural number n, are the numbers that result each time from adding up all the digits of the number we currently have, until the number of digits in the result is 1.
 
-### Usage
+### Usage🪛
 
 In this section, we're going to see the main `operations` the program has to offer, where each one is passed as a number in the function resolve_number(), in its field **userOption**. Being more specific, we have the following operations:
 
@@ -50,29 +60,50 @@ self.userOptions = {
 ```
 
  1. `Search by key`: This option is denoted by the integer `0`. 
-    * The program asks the user for a key and then it returns the phrases that have that same **key**.
+    * The user inputs a key and the program returns the phrases that have that same **key**.
  2. `Search by phrase`: This option is denoted by the integer `1`.
-    * The program asks the user for a phrase and then returns the phrases that lie within the same [] of the attribute "phrases".
+    * The user inputs a phrase and the program returns the phrases that lie within the same [] of the attribute "phrases".
  4. `Insert a phrase`: This option is denoted by the integer `2`.
-    * The program asks the user for a phrase and then it inserts the related **information** to the dictionary.
+    * The user inputs a phrase and the program inserts the related **information** to the dictionary.
  6. `Delete a phrase`: This option is denoted by the integer `3`.
-    * The program asks the user for a phrase and then **checks** for its existence. If it exists it deletes it, otherwise it returns.
+    * The user inputs a phrase and the program **checks** for its existence. If it exists it deletes it, otherwise it returns.
 
-### Example
+### Example💭
 
-Now let's run through some examples, in order for us to understand what the program actually does. Let's say that we want to insert the phrase "πληροφορική". This phrase, is converted to its numerical form which is 996, and its number divisions are (24, 6). Thus - considering the simplest case where an object with key = 996 doesn't exist - we insert into the dictionary the following object:
+Now let's run through an example, in order for us to understand what the program actually does. Let's say that we want to insert the phrase "πληροφορική". The phrase, is converted to its numerical form 996, where its subdivisions are 9+9+6 = 24 and 2+4=6. So now the information which contains both the phrase, the key and its subdivisions, is going to be inserted in the dictionary. Obviously if there's not a key with value 996 already in the dictionary, then a new object is created with key = 996.:
 
 ```json
 "996": {
-    "divisions": [24, 6],
-    "phrases": ["πληροφορική"]
+    "divisions": [
+        24,
+         6
+    ],
+    "phrases": [
+        "πληροφορική"
+    ]
 }
 ```
 
-## Future improvements
+Otherwise, the program just inserts the phrase in the object, under the attribute "phrases":
 
-My main goal is to create a graphical user interface, so that anyone can access and experiment with the dictionary, without having to deal with the code aspect of the console application :)
+```json
+"996": {
+    "divisions": [
+        24,
+         6
+    ],
+    "phrases": [
+        "α' πρόβλεψη",
+        "η β' εξακτύς",
+        "πληροφορική"
+    ]
+}
+```
 
-## Contributing
+### FutureGoals🔮
 
-Contributions are welcome! If you'd like to contribute, feel free to fork the repository and submit a pull request!
+The main goal is to create a GUI application, so that anyone can experiment with the dictionary with more ease, without dealing with the hardships of the console application🙂.
+
+### Contributions🫴
+
+If you'd like to contribute, feel free to fork the repository and submit a pull request. I'd be really grateful to any contribution!
