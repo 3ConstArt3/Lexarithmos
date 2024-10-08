@@ -8,11 +8,11 @@ Although this idea may seem simple at first, the results are impressive! The pro
 
 ### Features⚙️
 
- * `Phrase to number`: Convert any Greek phrase into its numerical equivalent using a specific letter-to-number mapping.
- * `Dictionary format`: Store phrases and their numerical forms in a JSON file, which updates after every insertion or deletion.
- * `Basic operations`: Perform key operations like addition, deletion, and search within the dictionary.
+ * `Phrase To Number`: Convert any Greek phrase into its numerical equivalent using a specific letter-to-number mapping.
+ * `Dictionary Format`: Store phrases and their numerical forms in a JSON file, which updates after every insertion or deletion.
+ * `Basic Operations`: Perform key operations like addition, deletion, and search within the dictionary.
 
-**NOTE: The letter-to-number map isn't arbitrary! It's based on a recent historical discovery at an archaeological site in Greece, adding an intriguing aspect to the project.**
+> **Note**: The letter-to-number map isn't arbitrary! It's based on a recent historical discovery at an archaeological site in Greece, adding an intriguing aspect to the project.
 
 ### DataFormat📄
 
@@ -37,14 +37,14 @@ The phrases and their numerical values are stored in a **JSON** file located und
 }
 ```
 
-where
+Where:
 
  * `key`: The **integer** representation of each phrase `sM`.
  * `divisions`: An **array** of integer subdivisions `dN` of the key.
  * `phrases`: An **array** of all phrases that correspond to the same key.
  * `N, M`: The integer **indices** defining the lengths of the arrays.
 
-**NOTE: The subdivisions of a number `n` are the sums of its digits repeated, until a single-digit number is obtained (e.g., 996 → 9+9+6 = 24 → 2+4 = 6).**
+> **Note**: The subdivisions of a number `n` are the sums of its digits repeated, until a single-digit number is obtained (e.g., 996 → 9+9+6 = 24 → 2+4 = 6).
 
 ### Usage🪛
 
@@ -59,14 +59,10 @@ self.userOptions = {
 }
 ```
 
- 1. `Search by key`: This option is denoted by the integer `0`. 
-    * Input a key to retrieve all phrases associated with that key.
- 2. `Search by phrase`: This option is denoted by the integer `1`.
-    * Input a phrase to find the phrases associated with the same key.
- 4. `Insert a phrase`: This option is denoted by the integer `2`.
-    * Input a phrase to convert it into its numeric form and insert it into the JSON dictionary.
- 6. `Delete a phrase`: This option is denoted by the integer `3`.
-    * Input a phrase to delete it from the dictionary if it exists.
+ 1. **Search By Key**(`0`): Input a key to retrieve all phrases associated with that key.
+ 2. **Search By Phrase**(`1`): Input a phrase to find the phrases associated with the same key.
+ 4. **Insert A Phrase**(`2`): Input a phrase to convert it into its numeric form and insert it into the JSON dictionary.
+ 6. **Delete A Phrase**(`3`): Input a phrase to delete it from the dictionary if it exists.
 
 ### Example💭
 
