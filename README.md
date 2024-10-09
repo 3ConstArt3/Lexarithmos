@@ -46,6 +46,45 @@ Where:
 
 > **Note**: The subdivisions of a number `n` are the sums of its digits repeated, until a single-digit number is obtained (e.g., 996 → 9+9+6 = 24 → 2+4 = 6).
 
+Additionally, there is another **JSON** dictionary file, located in the `code/Data/` folder, with the name `previewFile.json`, which is used for research purposes. The idea behind this file is that the anagrams of a key may provide opportunities to discover deeper ideological connections between seemingly unrelated concepts. Each entry in this dictionary follows the structure below:
+
+```json
+{
+    "key": {
+        "divisions": [
+            "d1",
+            "d2",
+            "...",
+            "dN"
+        ],
+        "anagrams": [
+            "a1": [
+                "s11",
+                "s12",
+                "...",
+                "s1M"
+            ],
+            "a2": [
+                "s21",
+                "s22",
+                "...",
+                "s2M"
+            ],
+            "...": [
+            ],
+            "aK": [
+                "sK1",
+                "sK2",
+                "...",
+                "sKM"
+            ],
+        ]
+    }
+}
+```
+
+> **Note**: The anagrams of a key, are the digit permutations of that key (e.g. 12, 21).
+
 ### Usage🪛
 
 The program offers the following operations, passed as arguments to the `resolve_number()` function in its field `userOption`:
