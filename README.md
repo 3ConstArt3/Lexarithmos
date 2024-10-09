@@ -83,6 +83,13 @@ Additionally, there is another **JSON** dictionary file, located in the `code/Da
 }
 ```
 
+Where:
+
+ * `key`: The **integer** representation of the first anagram `a1`.
+ * `divisions`: An **array** containing the integer subdivisions `dN` of the anagrams (`a1`,`a2`,...,`aK`).
+ * `anagrams`: An **array** of all anagrams of the main key.
+ * `N, M, K`: The integer **indices** representing the lengths of the respective arrays.
+
 > **Note**: The anagrams of a key, are the digit permutations of that key (e.g. 12, 21).
 
 ### Usage🪛
