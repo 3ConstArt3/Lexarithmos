@@ -1,211 +1,123 @@
 # -*- coding: utf-8 -*-
-
 import unicodedata
+
 from string import punctuation
+from typing import Dict, List
 
 class Transformer:
 
     """
-    A class that is used, in order to transform
-    the passing phrase || message, into a clean
-    version of itself - removing any special accents
-    or symbols - and then into a list of numbers,
-    called subdivisions.
-
-    ...
-
-    Attributes
-    ----------
-    letterMap : dict
-        A dictionary containing the integer
-        values of each greek letter, in the
-        alphabet.
+    Transforms Greek words into numerical
+    values based on a predefined letter
+    mapping. It cleans the input text by
+    removing accents, symbols and
+    punctuation, it then computes
+    word values and produces subdivisions
+    of the resulting total value (digit sums).
     """
 
-    """
-    Constructor definition
-    """
-    def __init__(self):
+    LETTER_TO_VALUE = {
+        "Α": 1, "Β": 2, "Γ": 3, "Δ": 4, "Ε": 5,
+        "Ζ": 7, "Η": 8, "Θ": 9, "Ι": 10, "Κ": 20,
+        "Λ": 30, "Μ": 40, "Ν": 50, "Ξ": 60, "Ο": 70,
+        "Π": 80, "Ρ": 100, "Σ": 200, "Τ": 300, "Υ": 400,
+        "Φ": 500, "Χ": 600, "Ψ": 700, "Ω": 800
+    }
 
-        self.letterMap = {
-            "Α": 1,
-            "Β": 2,
-            "Γ": 3,
-            "Δ": 4,
-            "Ε": 5,
-            "Ζ": 7,
-            "Η": 8,
-            "Θ": 9,
-            "Ι": 10,
-            "Κ": 20,
-            "Λ": 30,
-            "Μ": 40,
-            "Ν": 50,
-            "Ξ": 60,
-            "Ο": 70,
-            "Π": 80,
-            "Ρ": 100,
-            "Σ": 200,
-            "Τ": 300,
-            "Υ": 400,
-            "Φ": 500,
-            "Χ": 600,
-            "Ψ": 700,
-            "Ω": 800
-        }
-
-    """
-    Function definition
-    """
-    def transform(self, message: str) -> list:
+    def transform_message(self, text: str) -> List[int]:
 
         """
-        Finds the numerical subdivisions
-        of the cleaned message's integer
-        representation.
+        Transforms a Greek text into a list of numerical subdivisions.
 
-        ...
-
-        Parameters
-        ----------
-        message: str
-            The message, to be processed.
-
-        Returns
-        -------
-        list
-            Contains the message's subdivisions.
+        :param text: The input Greek text.
+        :return: A list of subdivisions derived from the total numerical value.
         """
 
-        cleanedMessage = self.clean_message(message)
-        wordNumber = sum(self.word_number_of(word, self.letterMap)
-                         for word in cleanedMessage)
-        return self.subdivisions_of(wordNumber)
+        words = self._clean_text(text)
+        total_value = sum(self._compute_word_value(word) for word in words)
+        return self._digit_subdivisions(total_value)
 
-    def clean_message(self, message: str) -> list:
+    def _clean_text(self, text: str) -> List[str]:
 
         """
-        Cleans the message, from its
-        symbols and accents.
+        Removes accents and punctuation from the text, converts
+        them to uppercase, and splits them into words.
 
-        ...
-
-        Parameters
-        ----------
-        message: str
-            The message to be cleaned.
-
-        Returns
-        -------
-        list
-            The cleaned message's characters.
+        :param text: The raw input text.
+        :return: The cleaned uppercase words.
         """
 
-        noAccentMessage = self.remove_accents(message)
-        cleanMessage = self.remove_symbols(noAccentMessage)
-        return cleanMessage.upper().split()
+        without_accents = self._remove_accents(text)
+        without_symbols = self._remove_symbols(without_accents)
+        return without_symbols.upper().split()
 
     @staticmethod
-    def remove_symbols(message: str) -> str:
+    def _remove_symbols(text: str) -> str:
 
         """
-        Cleans the message from
-        symbolic characters.
+        Removes all punctuation symbols from the text.
 
-        ...
-
-        Parameters
-        ----------
-        message: str
-            The message, to be cleaned.
-
-        Returns
-        -------
-        str
-            The final cleaned message.
+        :param text: The text to process.
+        :return: The text without punctuation.
         """
-
-        return "".join(c for c in message
-                       if c not in punctuation)
+        return "".join(char for char in text if char not in punctuation)
 
     @staticmethod
-    def remove_accents(message: str) -> str:
+    def _remove_accents(text: str) -> str:
 
         """
-        Cleans the message, from accents.
+        Removes all accents from the Greek text.
 
-        ...
-
-        Parameters
-        ----------
-        message: str
-            The message to be cleaned.
-
-        Returns
-        -------
-        str
-            The final cleaned message.
+        :param text: The text to process.
+        :return: The text without accents.
         """
 
-        normalizedMessage = unicodedata.normalize('NFD', message)
-        messageWithoutAccents = ''.join([c for c in normalizedMessage
-                                         if not unicodedata.combining(c)])
-        return unicodedata.normalize('NFC', messageWithoutAccents)
+        normalized = unicodedata.normalize("NFD", text)
+        without_accents = "".join(
+            char for char in normalized
+            if not unicodedata.combining(char)
+        )
+
+        return unicodedata.normalize("NFC", without_accents)
+
+    def _compute_word_value(self, word: str) -> int:
+
+        """
+        Computes the numerical value of a single
+        word based on a Greek letter map.
+
+        :param word: A word containing Greek characters.
+        :return: The numerical value of the word.
+        :raises ValueError: If the word contains invalid characters.
+        """
+
+        try:
+
+            return sum(
+                self.LETTER_TO_VALUE[char] for char in word
+                if char in self.LETTER_TO_VALUE
+            )
+        except KeyError as error:
+
+            raise ValueError(
+                f"Invalid character '{error.args[0]}' in word '{word}'."
+            ) from error
 
     @staticmethod
-    def word_number_of(word: str, letterMap: dict) -> int:
+    def _digit_subdivisions(number: int) -> List[int]:
 
         """
-        Finds the integer representation
-        of the given word.
+        Generates subdivisions of a number by
+        repeatedly summing its digits until it is < 10.
 
-        ...
-
-        Parameters
-        ----------
-        word: str
-            The phrase to be evaluated.
-
-        letterMap: dict
-            The dictionary, that maps every character
-            of the given word, to its corresponding
-            arithmetic value.
-
-        Returns
-        -------
-        int
-            The word number of the given word.
+        :param number: The input number.
+        :return: A list of all subdivisions, including the original number.
         """
 
-        return sum([letterMap[letter]
-                    for letter in word])
-
-    @staticmethod
-    def subdivisions_of(number: int) -> list:
-
-        """
-        Finds the subdivisions of
-        the given number.
-
-        ...
-
-        Parameters
-        ----------
-        number: int
-            The number, from which the
-            subdivisions are found.
-
-        Returns
-        -------
-        list
-            The list containing the subdivisions.
-        """
-
-        numberList = [number]
-        digitSum = lambda x: sum(int(d) for d in str(x))
+        subdivisions = [number]
         while number >= 10:
 
-            number = digitSum(number)
-            numberList.append(number)
+            number = sum(int(digit) for digit in str(number))
+            subdivisions.append(number)
 
-        return numberList
+        return subdivisions
