@@ -1,371 +1,180 @@
+# -*- coding: utf-8 -*-
 import json
+import os
+
 from itertools import permutations
+from typing import Any, Dict, List, Tuple, Optional, Iterable
 
 class NumberFile:
 
     """
-    A class that is used in order to represent
-    the dictionary, containing all the phrases
-    that are stored from the user, along with
-    their word number values.
+    A class that is used to represent the
+    dictionary, containing all the phrases
+    that are stored from the user, along
+    with their word number values.
 
-    ...
-
-    Attributes
-    ----------
-    userOptions : dict
-        A dictionary containing available user options.
-        Here the options are insert | delete, which
-        correspond to 1 | 0 respectively.
-
-    fileName: str
-        A string, that contains the name of the file,
-        that the dictionary is going to be saved | loaded.
-
-    numberFile: dict
-        The dictionary, containing, all the unique
-        word numbers, along with the phrases, that
-        result to its arithmetic value.
+    - All keys are stored as strings for stable .json serialization.
+    - `Preview`, groups numbers by digit permutations ("anagrams").
     """
 
-    """
-    Constructor definition
-    """
-    def __init__(self):
-
-        self.userOptions = {
-            "search_by_key": 0,
-            "search_by_phrase": 1,
-            "insert_phrase": 2,
-            "delete_phrase": 3
-        }
-
-        self.fileName = 'Data/numberFile.json'
-        self.numberFile = self.load_from(self.fileName)
-
-    """
-    Function definition
-    """
-    def update(self, information: tuple, userOption: int) -> None:
+    def __init__(self, json_file_path: str = "Data/number_file.json") -> None:
 
         """
-        Updates self.numberFile's structure.
+        Initializes the store and load of the existing data, if present.
 
-        Parameters
-        ----------
-        information: tuple
-            The information for which an insertion or
-            search of deletion is going to happen.
-        userOption: int
-            The user's choice for managing the passing
-            information. He can either search by a key
-            | search by a phrase | insert a phrase |
-            delete a phrase.
+        :param json_file_path: The path to the .json file used for persistence.
         """
 
-        if userOption == self.userOptions["search_by_key"]:
+        self.json_file_path = json_file_path
+        os.makedirs(os.path.dirname(self.json_file_path), exist_ok=True)
+        self.number_store: Dict[str, Dict[str, Any]] = self._load_from_file()
 
-            print("\nPlease provide the key:")
-            key = int(input())
-            self.search_by_key(key)
-        elif userOption == self.userOptions["search_by_phrase"]:
+    def update(self, entry: Tuple[str, List[int]], insert: bool = True) -> None:
 
-            print("\nPlease provide the phrase:")
-            phrase = str(input())
-            self.search_by_phrase(phrase)
-        elif userOption == self.userOptions["insert_phrase"]:
+        """
+        Inserts or deletes a phrase mapping.
 
-            print("\nInserting information...")
-            self.insert(information)
-        elif userOption == self.userOptions["delete_phrase"]:
+        :param entry: A tuple of (phrase, numbers) where numbers[0] is the primary number and numbers[1] are its digit-sum divisions.
+        :param insert: When True, insert/update the phrase; otherwise delete it.
+        :raises ValueError: If numbers is empty or phrase is empty/whitespace or when deleting, if the phrase is absent under the key.
+        :raises TypeError: If numbers contain non-integers.
+        :raises KeyError: When deleting, if the key does not exist.
+        :raises RuntimeError: If persisting, the disk fails.
+        """
 
-            print("\nDeleting information...")
-            self.delete(information)
+        phrase_text, number_series = entry
+        self._validate_phrase(phrase_text)
+        self._validate_numbers(number_series)
+
+        primary_number = number_series[0]
+        if insert: self._insert_phrase(phrase_text, number_series)
+        else: self._delete_phrase(phrase_text, primary_number)
+
+        self._cleanup_store()
+        self._save_to_file()
+
+    @staticmethod
+    def _validate_phrase(phrase_text: str) -> None:
+        
+        """
+        Validates that a phrase is a non-empty string.
+
+        :raises ValueError: If the phrase is empty or whitespace.
+        """
+        if not isinstance(phrase_text, str) or not phrase_text.strip():
+            raise ValueError("Phrase must be a non-empty string.")
+
+    @staticmethod
+    def _validate_numbers(number_series: Iterable[int]) -> None:
+        
+        """
+        Validates the numbers' list. It ensures it is
+        non-empty and contains only integers.
+
+        :raises ValueError: If the number_series is empty.
+        :raises TypeError: If any element of number_series is not an integer.
+        """
+        
+        try: sequence = list(number_series)
+        except TypeError as exc:
+            raise TypeError("Numbers must be an iterable of integers.") from exc
+
+        if not sequence: raise ValueError("Number list cannot be empty.")
+        if any(not isinstance(n, int) for n in sequence):
+            raise TypeError("All numbers must be integers.")
+
+    def _insert_phrase(self, phrase_text: str, number_series: List[int]) -> None:
+        
+        """
+        Inserts or updates a phrase for its primary number.
+
+        :param phrase_text: The phrase to record.
+        :param number_series: [primary_number, *divisions].
+        """
+        
+        primary_number, divisions = number_series[0], number_series[1:]
+        key_str = str(primary_number)
+
+        if key_str not in self.number_store:
+            self.number_store[key_str] = {"divisions": divisions, "phrases": [phrase_text]}
         else:
+            
+            existing_phrases = set(self.number_store[key_str]["phrases"])
+            existing_phrases.add(phrase_text)
+            self.number_store[key_str]["phrases"] = sorted(existing_phrases)
 
-            print("\nInput error!\n")
-            return
-
-        self.numberFile = {k: self.numberFile[k]
-                           for k in sorted(self.numberFile, key=int)}
-
-        self.clean_file()
-        self.save_to(self.numberFile, self.fileName)
-
-    def preview(self) -> None:
-
+    def _delete_phrase(self, phrase_text: str, primary_number: int) -> None:
+        
         """
-        Creates a specific preview, of the
-        self.numberFile dictionary.
+        Deletes a phrase under the specified primary number.
+
+        :param phrase_text: The phrase to remove.
+        :param primary_number: The primary number key.
+        :raises KeyError: If the key does not exist.
+        :raises ValueError: If the phrase does not exist under the key.
         """
+        
+        key_str = str(primary_number)
+        if key_str not in self.number_store:
+            raise KeyError(f"Key {primary_number} does not exist.")
 
-        keys = sorted(int(key) for key in self.numberFile.keys())
-        previewFile = {}
+        try: 
+            self.number_store[key_str]["phrases"].remove(phrase_text)
+        except ValueError as exc:
+            raise ValueError(f"Phrase '{phrase_text}' does "
+                             f"not exist under key {primary_number}.") from exc
 
-        while keys:
-
-            key = keys[0]
-            stringKey = str(key)
-            divisions = self.numberFile[stringKey]['divisions']
-            previewFile[stringKey] = {"divisions": divisions, "anagrams": {}}
-
-            for newKey in self.permutations_of(key):
-
-                newStringKey = str(newKey)
-                if newKey in keys:
-
-                    phrases = self.numberFile[newStringKey]['phrases']
-                    previewFile[stringKey]['anagrams'][newKey] = phrases
-                    del self.numberFile[newStringKey]
-                    keys.remove(newKey)
-
-        for key in previewFile.keys():
-            anagrams = previewFile[key]['anagrams']
-            previewFile[key]['anagrams'] = {
-                k: anagrams[k]
-                for k in sorted(anagrams, key=int)
-            }
-
-        fileName = "Data/previewFile.json"
-        self.save_to(previewFile, fileName)
-
-    def search_by_key(self, key: int) -> None:
-
+    def _cleanup_store(self) -> None:
+        
         """
-        Searches in the dictionary
-        for a specific object.
-
-        ...
-
-        Parameters
-        ----------
-        key: int
-            The object's key, to search for.
+        Remove all empty entries and keep keys sorted numerically.
         """
+        
+        self.number_store = {k: v for k, v in self.number_store.items() if v["phrases"]}
+        self.number_store = dict(sorted(self.number_store.items(), key=lambda item: int(item[0])))
+
+    def _save_to_file(self, data: Optional[Dict[str, Any]] = None, path: Optional[str] = None) -> None:
+        
+        """
+        Persists the provided data or current store to a .json file.
+
+        :param data: The data to write. It defaults to the in-memory store.
+        :param path: The target path. It defaults to the configured .json file path.
+        :raises RuntimeError: If writing to the disk fails.
+        """
+        
+        target_path = path or self.json_file_path
+        payload: Dict[str, Any] = data or self.number_store
+        
         try:
+            
+            with open(target_path, "w", encoding="utf-8") as fp:
+                json.dump(payload, fp, ensure_ascii=False, indent=4)
+        except OSError as exc:
+            raise RuntimeError(f"Failed to write .json to '{target_path}': {exc}") from exc
 
-            print(f"\nPhrases found for key ({key}):")
-            print(self.numberFile[str(key)]['phrases'])
-        except KeyError:
-
-            print("\nKeyError:")
-            print(f"Key '{key}' doesn't exist.")
-
-    def search_by_phrase(self, phrase: str) -> None:
-
+    def _load_from_file(self) -> Dict[str, Dict[str, Any]]:
+        
         """
-        Searches in the dictionary
-        for a specific key.
-
-        ...
-
-        Parameters
-        ----------
-        phrase: str
-            The object's phrase to search for.
+        Loads the store from the disk, returning
+        an empty mapping on error.
         """
-        for key in self.numberFile.keys():
-
-            phrases = self.numberFile[key]['phrases']
-            if phrase in phrases:
-
-                print(f"\nPhrases found for phrase ({phrase}):")
-                print(phrases)
-                break
-
-    def insert(self, information: tuple) -> None:
-
-        """
-        Inserts information in self.numberFile.
-
-        ...
-
-        Parameters
-        ----------
-        information: tuple
-            The necessary information, for the insertion.
-        """
-
-        phrase, numberList = information
-        key, divisions = numberList[0], numberList[1:]
-        infoExists = (str(key) in self.numberFile)
-
-        if infoExists:
-            self.add_phrase(phrase, key)
-            return
-
-        self.add_object((divisions, phrase), key)
-
-    def add_object(self, objectInfo: tuple, key: int) -> None:
-
-        """
-        Adds a new object, to self.numberFile
-        with the specified key.
-
-        ...
-
-        Parameters
-        ----------
-        objectInfo: tuple
-            Contains the information of the object.
-
-        key: int
-            The key, where the object is stored.
-        """
-
-        divisions, phrase = objectInfo
-        self.numberFile[str(key)] = {
-            "divisions": divisions,
-            "phrases": [phrase]
-        }
-
-    def add_phrase(self, phrase: str, key: int) -> None:
-
-        """
-        Adds a new phrase, to the attribute 'phrases',
-        of self.numberFile's key value.
-
-        ...
-
-        Parameters
-        ----------
-        phrase: str
-            The phrase to be inserted.
-
-        key: int
-            The key where the phrase is
-            going to be stored at.
-        """
-
-        dictionary = self.numberFile[str(key)]
-        dictionary['phrases'].append(phrase)
-        phrases = dictionary['phrases'].copy()
-        dictionary['phrases'] = list(set(phrases))
-        dictionary['phrases'].sort()
-
-    def delete(self, information: tuple) -> None:
-
-        """
-        Deletes information in self.numberFile.
-
-        ...
-
-        Parameters
-        ----------
-        information: tuple
-            The necessary information, for the deletion.
-        """
-
-        phrase, numberList = information
-        key = numberList[0]
-
+        
+        if not os.path.exists(self.json_file_path): return {}
         try:
-
-            self.delete_phrase(phrase, key)
-        except KeyError:
-
-            print("\nKeyError:")
-            print(f"Key '{key}' doesn't exist.")
-
-    def delete_phrase(self, phrase: str, key: int) -> None:
-
-        """
-        Deletes the given phrase.
-
-        ...
-
-        Parameters
-        ----------
-        phrase: str
-            The phrase to be deleted.
-
-        key: int
-            The key, where the deletion occurs.
-        """
-        try:
-
-            self.numberFile[str(key)]['phrases'].remove(phrase)
-        except ValueError:
-
-            print("\nValueError:")
-            print(f"Phrase '{phrase}' doesn't exist.")
-
-    def clean_file(self) -> None:
-
-        """
-        Removes the file's objects
-        that don't have any phrases.
-        """
-
-        keysToDelete = [key for key, value in self.numberFile.items()
-                        if len(value['phrases']) == 0]
-        for key in keysToDelete:
-            del self.numberFile[str(key)]
+            
+            with open(self.json_file_path, "r", encoding="utf-8") as fp:
+                return json.load(fp)
+        except (OSError, json.JSONDecodeError): return {}
 
     @staticmethod
-    def permutations_of(number: int) -> list:
-
+    def _permutations_of(number: int) -> List[int]:
+        
         """
-        Finds the integer permutations of number.
+        Returns all unique digit permutations 
+        of a number as integers.
 
-        ...
-
-        Parameters
-        ----------
-        number: int
-            The number necessary, to find his
-            permutation list.
-
-        Returns
-        -------
-        list
-            The list containing number's permutations.
+        :param number: The input number.
+        :return: The unique permutations interpreted as integers.
         """
-
-        return list(set(int(''.join(p))
-                        for p in permutations(str(number))))
-
-    @staticmethod
-    def save_to(data: dict, fileName: str) -> None:
-
-        """
-        Saves the data, in a .json file.
-
-        ...
-
-        Parameters
-        ----------
-        data: dict
-            The data, to store in the file.
-
-        fileName: str
-            The name of the file, to store
-            the data.
-        """
-
-        with open(fileName, 'w', encoding='utf-8') as file:
-            json.dump(data, file, ensure_ascii=False, indent=4)
-
-    @staticmethod
-    def load_from(fileName: str) -> dict:
-
-        """
-        Loads the data from a .json file.
-
-        ...
-
-        Parameters
-        ----------
-        fileName: str
-            The name of the file, the user wants
-            to use, to load the data from it.
-
-        Returns
-        -------
-        dict
-            The dictionary stored in the file.
-
-        """
-
-        with open(fileName, 'r', encoding='utf-8') as file:
-            return json.load(file)
+        return list({int("".join(p)) for p in permutations(str(number))})
