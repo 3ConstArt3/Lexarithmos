@@ -1,65 +1,25 @@
 # -*- coding: utf-8 -*-
-
-from Public.Research.WordNumber.Utility.Transformer import *
-from Public.Research.WordNumber.Utility.NumberFile import *
+from Utility.Transformer import Transformer
+from Utility.NumberFile import NumberFile
 
 class Solution:
 
-    """
-    A class that is used, in order to
-    solve the problem, presented.
-
-    ...
-
-    Attributes
-    ----------
-    transformer: Transformer
-        An object, used to transform
-        a string message.
-
-    numberFile: NumberFile
-        An object, used to update or
-        retrieve information from a
-        .json file.
-    """
-
-    """
-    Constructor definition
-    """
     def __init__(self):
 
         self.transformer = Transformer()
         self.numberFile = NumberFile()
 
-    """ 
-    Function definition
-    """
     def resolve_flag(self, message: str, userOption: int) -> list:
 
-        """
-        Solves the main problem.
+        numberList = self.transformer.transform_message(message)
 
-        ...
+        if userOption == 2: insert = True
+        elif userOption == 3: insert = False
+        else: return []
 
-        Parameters
-        ----------
-        message: str
-            The message, to be processed.
-
-        userOption: int
-            The user's choice, of how to
-            update the stored numberFile.
-
-        Returns
-        -------
-        list
-            Contains the problem's solution.
-        """
-
-        numberList = self.transformer.transform(message)
-        information = (message, numberList)
-        self.numberFile.update(information, userOption)
-        self.numberFile.preview()
+        self.numberFile.update((message, numberList), insert)
+        self.numberFile.generate_permutations_file()
+        self.numberFile.generate_variations_file()
 
         return numberList
 
