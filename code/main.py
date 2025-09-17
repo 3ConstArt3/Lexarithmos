@@ -1,44 +1,81 @@
-# -*- coding: utf-8 -*-
-from Utility.Transformer import Transformer
-from Utility.NumberFile import NumberFile
+from typing import Tuple
+from Research.Lexarithmos.Utility.Orchestrator import Orchestrator
 
-class Solution:
+class MainPipeline:
 
-    def __init__(self):
+    def __init(self):
+        pass
 
-        self.transformer = Transformer()
-        self.numberFile = NumberFile()
-
-    def resolve_flag(self, message: str, userOption: int) -> list:
-
-        numberList = self.transformer.transform_message(message)
-
-        if userOption == 2: insert = True
-        elif userOption == 3: insert = False
-        else: return []
-
-        self.numberFile.update((message, numberList), insert)
-        self.numberFile.generate_permutations_file()
-        self.numberFile.generate_variations_file()
-
-        return numberList
-
-    def solve(self) -> None:
+    @staticmethod
+    def _interactive_prompt() -> Tuple[str, int]:
 
         """
-        The main function of the program,
-        where all outputs are viewed.
+        Prompts the user repeatedly for a phrase
+        and a desired action (insert, delete or
+        a default print), until he types "quit".
+
+        :return: A (phrase, user_option) tuple.
         """
 
-        message = ""
-        flag = self.resolve_flag(message, 3)
+        print("\nEnter a phrase (or 'quit' to exit): ")
+        phrase = input("--> ").strip()
+        if phrase.lower() in {"quit"}: return "", -1
 
-        if message:
+        if not phrase:
+            print("Phrase cannot be empty. Please try again.")
+            return "", -1
 
-            print(f"\nPhrase: {message}")
-            print(f"Subdivisions: {flag}")
+        print("\n=========================================")
+        print("Action list:\n")
+        print("=> Insert: [i] [I] [insert] [Insert] [2].")
+        print("=> Delete: [d] [D] [delete] [Delete] [3].")
+        print("=> Enter: Computes only.")
+        print("=========================================\n")
+
+        action = input("--> ").strip().lower()
+        if action in ("i", "I", "insert", "Insert", "2"):
+            user_option = 2
+        elif action in ("d", "D", "delete", "Delete", "3"):
+            user_option = 3
+        else:
+            user_option = -1
+
+        return phrase, user_option
+
+    def run(self) -> int:
+
+        """
+        The entry point of the CLI.
+
+        :return: The process's exit code.
+        """
+
+        print("\nInteractive mode — type your phrase, or 'quit' to exit.")
+        solution = Orchestrator()
+        try:
+
+            while True:
+
+                phrase, user_option = self._interactive_prompt()
+                if not phrase:
+                    print("Thanks for using my app ^_^")
+                    break
+
+                subdivisions = solution.process(phrase, user_option)
+                if subdivisions:
+
+                    print(f"Phrase: {phrase}")
+                    print(f"Subdivisions: {subdivisions}")
+                else:
+                    print("No subdivisions produced.")
+        except KeyboardInterrupt:
+
+            print("\nProcess aborted by the user.")
+            return 130
+
+        return 0
 
 if __name__ == "__main__":
 
-    solution = Solution()
-    solution.solve()
+    pipeline = MainPipeline()
+    raise SystemExit(pipeline.run())
