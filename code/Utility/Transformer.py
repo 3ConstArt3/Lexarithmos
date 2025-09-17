@@ -2,7 +2,7 @@
 import unicodedata
 
 from string import punctuation
-from typing import Dict, List
+from typing import List
 
 class Transformer:
 
@@ -98,10 +98,7 @@ class Transformer:
                 if char in self.LETTER_TO_VALUE
             )
         except KeyError as error:
-
-            raise ValueError(
-                f"Invalid character '{error.args[0]}' in word '{word}'."
-            ) from error
+            raise ValueError(f"Invalid character '{error.args[0]}' in word '{word}'.") from error
 
     @staticmethod
     def _digit_subdivisions(number: int) -> List[int]:
