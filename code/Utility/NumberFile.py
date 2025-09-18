@@ -12,17 +12,15 @@ class NumberFile:
     dictionary, containing all the phrases
     that are stored from the user, along
     with their word number values.
-
-    - All keys are stored as strings for stable .json serialization.
-    - `Preview`, groups numbers by digit permutations ("anagrams").
     """
 
     def __init__(self, json_file_path: str = "Data/number_file.json") -> None:
 
         """
-        Initializes the store and load of the existing data, if present.
+        Initializes the dictionary storage files and
+        loads the necessary data if they are present.
 
-        :param json_file_path: The path to the .json file used for persistence.
+        :param json_file_path: The main .json usage file path.
         """
 
         self.json_file_path = json_file_path
@@ -32,13 +30,13 @@ class NumberFile:
     def update(self, entry: Tuple[str, List[int]], insert: bool = True) -> None:
 
         """
-        Inserts or deletes a phrase mapping.
+        Inserts | updates or deletes a phrase mapping.
 
         :param entry: A tuple of (phrase, numbers) where numbers[0] is the primary number and numbers[1] are its digit-sum divisions.
-        :param insert: When True, insert/update the phrase; otherwise delete it.
-        :raises ValueError: If numbers is empty or phrase is empty/whitespace or when deleting, if the phrase is absent under the key.
-        :raises TypeError: If numbers contain non-integers.
-        :raises KeyError: When deleting, if the key does not exist.
+        :param insert: When its value is True, then insert | update the phrase. Otherwise, delete it.
+        :raises ValueError: If the number list is empty or the phrase is empty/whitespace or upon deletion, if the phrase is absent.
+        :raises TypeError: If the numbers contain non-integer values.
+        :raises KeyError: If the key does not exist, upon deletion.
         :raises RuntimeError: If persisting, the disk fails.
         """
 
@@ -56,9 +54,11 @@ class NumberFile:
     def generate_permutations_file(self, permutation_file_path: str = "Data/permutations_file.json") -> None:
 
         """
-        Generate a preview JSON file that groups all digit permutations of each key in the number file.
+        Generates a preview .json file that groups
+        all the digit permutations of each key
+        in the dictionary of the storage.
 
-        :param permutation_file_path: Path to save the generated preview_file.json.
+        :param permutation_file_path: The path to save the preview file.
         """
 
         if not os.path.exists(self.json_file_path):
@@ -101,56 +101,63 @@ class NumberFile:
     def generate_variations_file(self, variations_file_path: str = "Data/variations_file.json") -> None:
 
         """
-        Build a variations index for each base key found in ``number_file.json`` and
-        save it to ``variations_file.json``.
+        Builds a variation indexing system,
+        for each key inside the dictionary.
 
-        :param variations_file_path: Output JSON path where the variation mapping will be written.
-        :raises FileNotFoundError: If ``number_file_path`` does not exist.
-        :raises ValueError: If ``number_file_path`` is not valid JSON.
+        :param variations_file_path: The path where the variation mapping will be written.
+        :raises FileNotFoundError: If the number_file_path does not exist.
+        :raises ValueError: If the number_file_path is not a valid .json.
         """
 
         if not os.path.exists(self.json_file_path):
             raise FileNotFoundError(f"File not found: {self.json_file_path}")
 
         try:
+
             with open(self.json_file_path, "r", encoding="utf-8") as f:
-                number_data: Dict[str, Dict[str, Any]] = json.load(f)
+                number_data = json.load(f)
         except json.JSONDecodeError as exc:
             raise ValueError(f"Invalid JSON in {self.json_file_path}: {exc}") from exc
 
-        max_key_len: int = max((len(k) for k in number_data.keys()), default=0)
+        max_key_len = max((len(k) for k in number_data.keys()), default=0)
         variations_index: Dict[str, Dict[str, Dict[str, List[str]]]] = {}
 
         def _balanced_candidates(base: str) -> List[str]:
 
-            """Generate balanced strings for two-digit distinct bases within max length."""
-            if len(base) != 2 or base[0] == base[1]:
-                return []
+            """
+            Generates balanced strings for two-digit
+            distinct bases within the max length.
+
+            :param base: The base key to be processed.
+            :return: A list of all the candidates for base the key.
+            """
+
+            if len(base) != 2 or base[0] == base[1]: return []
+
             a, b = base[0], base[1]
-            max_repeats = max_key_len // 2  # each balanced block has length 2*n
+            maximum_repeats = max_key_len // 2
             candidates: List[str] = []
-            for n in range(1, max_repeats + 1):
-                candidates.append(a * n + b * n)  # a..ab..b
-                candidates.append(b * n + a * n)  # b..ba..a
+            for n in range(1, maximum_repeats + 1):
+
+                candidates.append(a * n + b * n)
+                candidates.append(b * n + a * n)
+
             return candidates
 
         processed_keys: set[str] = set()
-
-        # Iterate in numeric order so the smallest representative key owns the group.
         for base_key in sorted(number_data.keys(), key=lambda s: int(s)):
 
             if base_key in processed_keys: continue
             variations_map: Dict[str, List[str]] = {}
-            group_keys: set[str] = set()
+            group_keys = set()
 
-            # Include the base key itself if present.
             if base_key in number_data:
 
                 phrases = number_data.get(base_key, {}).get("key-phrases", [])
                 variations_map[base_key] = phrases
                 group_keys.add(base_key)
 
-            # Symmetrical number (base + reversed(base)).
+            # Step 1) Find the 'symmetrical' number of the base-key.
             symmetrical: str = base_key + base_key[::-1]
             if symmetrical in number_data:
 
@@ -158,11 +165,11 @@ class NumberFile:
                 variations_map[symmetrical] = phrases
                 group_keys.add(symmetrical)
 
-            # Repetitive numbers: base repeated k times for k ≥ 2.
-            base_len: int = len(base_key)
+            # Step 2) Find the 'repetitive' numbers of the base-key.
+            base_len = len(base_key)
             if base_len > 0:
 
-                max_repeats: int = max_key_len // base_len
+                max_repeats = max_key_len // base_len
                 for k in range(2, max_repeats + 1):
 
                     repeated: str = base_key * k
@@ -172,23 +179,22 @@ class NumberFile:
                         variations_map[repeated] = phrases
                         group_keys.add(repeated)
 
-            # Balanced numbers (only for two-digit bases with distinct digits).
-            for cand in _balanced_candidates(base_key):
+            # Step 3) Find the 'balanced' numbers for the base-key.
+            for candidate in _balanced_candidates(base_key):
 
-                if cand in number_data:
+                if candidate in number_data:
 
-                    phrases = number_data.get(cand, {}).get("key-phrases", [])
-                    variations_map[cand] = phrases
-                    group_keys.add(cand)
+                    phrases = number_data.get(candidate, {}).get("key-phrases", [])
+                    variations_map[candidate] = phrases
+                    group_keys.add(candidate)
 
-            # Only add the base key to the index if it has at least one variation beyond itself.
             if len(variations_map) > 1:
 
                 variations_index[base_key] = {
-                    "variations": dict(sorted(variations_map.items(), key=lambda x: int(x[0])))
+                    "variations": dict(
+                        sorted(variations_map.items(), key=lambda x: int(x[0]))
+                    )
                 }
-
-                # Mark all keys in this group as processed, so they won't become separate entries later.
                 processed_keys.update(group_keys)
 
         os.makedirs(os.path.dirname(variations_file_path), exist_ok=True)
@@ -232,7 +238,7 @@ class NumberFile:
         Inserts or updates a phrase for its primary number.
 
         :param key_phrase: The phrase to record.
-        :param number_series: [primary_number, *divisions].
+        :param number_series: [primary_number, sub-divisions].
         """
         
         primary_number, sub_divisions = number_series[0], number_series[1:]
@@ -258,7 +264,7 @@ class NumberFile:
         :param key_phrase: The phrase to remove.
         :param primary_number: The primary number-key.
         :raises KeyError: If the key does not exist.
-        :raises ValueError: If the phrase does not exist under the key.
+        :raises ValueError: If the phrase does not exist under the provided key.
         """
         
         key_str = str(primary_number)
@@ -271,7 +277,8 @@ class NumberFile:
     def _cleanup_store(self) -> None:
         
         """
-        Remove all empty entries and keep keys sorted numerically.
+        Removes all empty entries and keep the
+        dictionary keys sorted in numerical order.
         """
         
         self.number_store = {k: v for k, v in self.number_store.items() if v["key-phrases"]}
@@ -280,10 +287,11 @@ class NumberFile:
     def _save_to_file(self, data: Optional[Dict[str, Any]] = None, path: Optional[str] = None) -> None:
         
         """
-        Persists the provided data or current store to a .json file.
+        Saves the provided or current data to a .json file,
+        to improve readability and statistical post-analysis.
 
-        :param data: The data to write. It defaults to the in-memory store.
-        :param path: The target path. It defaults to the configured .json file path.
+        :param data: The data to write to the disk.
+        :param path: The target path for the data.
         :raises RuntimeError: If writing to the disk fails.
         """
         
@@ -300,15 +308,13 @@ class NumberFile:
     def _load_from_file(self) -> Dict[str, Dict[str, Any]]:
         
         """
-        Loads the store from the disk, returning
-        an empty mapping on error.
+        Loads the dictionary from the disk. If the
+        dictionary doesn't exist, then it raises an error.
         """
         
         if not os.path.exists(self.json_file_path): return {}
         try:
-            
-            with open(self.json_file_path, "r", encoding="utf-8") as fp:
-                return json.load(fp)
+            with open(self.json_file_path, "r", encoding="utf-8") as fp: return json.load(fp)
         except (OSError, json.JSONDecodeError): return {}
 
     @staticmethod
