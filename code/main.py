@@ -1,13 +1,21 @@
 from typing import Tuple
+
 from Research.Lexarithmos.Utility.Orchestrator import Orchestrator
 
 class MainPipeline:
 
-    def __init(self):
+    def __init__(self) -> None:
         pass
 
     @staticmethod
-    def _interactive_prompt() -> Tuple[str, int]:
+    def _parse_action(action: str) -> int:
+
+        a = action.strip().lower()
+        if a in {"i", "insert", "2"}: return 2
+        if a in {"d", "delete", "3"}: return 3
+        return -1
+
+    def _interactive_prompt(self) -> Tuple[str, int]:
 
         """
         Prompts the user repeatedly for a phrase
@@ -37,10 +45,7 @@ class MainPipeline:
         print("#############################################\n")
 
         action = input("--> ").strip().lower()
-        if action in ("i", "I", "insert", "Insert", "2"): user_option = 2
-        elif action in ("d", "D", "delete", "Delete", "3"): user_option = 3
-        else: user_option = -1
-
+        user_option = self._parse_action(action)
         return phrase, user_option
 
     def run(self) -> int:
@@ -67,7 +72,7 @@ class MainPipeline:
               "# meaning behind it, which makes the Greek language unique!     #")
         print("#################################################################")
 
-        solution = Orchestrator()
+        orchestrator = Orchestrator()
         try:
 
             while True:
@@ -80,7 +85,7 @@ class MainPipeline:
                     print("###############################")
                     break
 
-                subdivisions = solution.process(phrase, user_option)
+                subdivisions = orchestrator.process(phrase, user_option)
                 if subdivisions:
 
                     print(f"[Phrase]: {phrase}")
